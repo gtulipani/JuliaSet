@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
-#include "ComplexNumber.h"
+#include "../lib/ComplexNumber.h"
 
 ComplexNumber *createComplexNumber(long double real, long double imaginary) {
     ComplexNumber *complex;

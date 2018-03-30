@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "IntVector.h"
+#include "../lib/IntVector.h"
 
 IntVector *createIntVector(int x, int y) {
     IntVector *intVec;

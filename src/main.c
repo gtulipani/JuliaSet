@@ -1,9 +1,20 @@
 #include <stdio.h>
-#include "Resolution.h"
-#include "ComplexNumber.h"
-#include "IntVector.h"
+#include <memory.h>
+#include "../lib/Resolution.h"
+#include "../lib/ComplexNumber.h"
+#include "../lib/IntVector.h"
+#include "../lib/Argument.h"
+#include "../lib/TypeConverter.h"
 
 #define PGM_FIRST_LINE "P2"
+
+#if !defined(FALSE)
+    #define FALSE 0
+#endif
+
+#if !defined(TRUE)
+    #define TRUE 1
+#endif
 
 #define INTENSITY_VALUES 256
 #define MAX_INTENSITY (INTENSITY_VALUES - 1)
@@ -31,6 +42,69 @@ ComplexNumber *fractalCenter;
 ComplexNumber *seed;
 long double widthPerPixel;
 long double heightPerPixel;
+/**
+ * Main values used for the algorithm. Replaced by the ones provided by the user
+ */
+double width;
+double height;
+Resolution *resolution;
+CustomString *output;
+long double seed_x = DEFAULT_SEED_X;
+long double seed_y = DEFAULT_SEED_Y;
+long double center_x = DEFAULT_CENTER_X;
+long double center_y = DEFAULT_CENTER_Y;
+/**
+ * List of valid Arguments
+ */
+SimpleList *argList;
+
+/**
+ * Parses the output value from pStr and updates success and errorMessage values
+ * @param pStr
+ * @param pOutput
+ * @param success
+ * @param errorMessage
+ */
+void parseOutput(CustomString *pStr, CustomString *pOutput, int *success, CustomString *errorMessage) {
+    if (strcmp(pStr->characters,"-") != 0) {
+        stringCopy(pOutput, pStr);
+    }
+    *success = TRUE;
+}
+
+/**
+ * Parses the double value from pStr and updates success and errorMessage values.
+ * @param pStr
+ * @param result
+ * @param success
+ * @param errorMessage
+ */
+void parseDouble(CustomString *pStr, double *result, int *success, CustomString *errorMessage) {
+    *success = FALSE;
+    CustomString *formattedError = initializeString(STRING_MAX);
+    switch (str2double(result, pStr->characters)) {
+        case STR2DOUBLE_INCONVERTIBLE: {
+            sprintf(formattedError->characters, "The %s value can't be converted to floating point value.", pStr->characters);
+            stringCopy(errorMessage, formattedError);
+            break;
+        }
+        case STR2DOUBLE_OVERFLOW: {
+            sprintf(formattedError->characters, "The %s value exceeds the maximum supported value.", pStr->characters);
+            stringCopy(errorMessage, formattedError);
+            break;
+        }
+        case STR2DOUBLE_UNDERFLOW: {
+            sprintf(formattedError->characters, "The %s value falls behind the minimum supported value.", pStr->characters);
+            stringCopy(errorMessage, formattedError);
+            break;
+        }
+        default: {
+            *success = TRUE;
+            break;
+        }
+    }
+    freeString(formattedError);
+}
 
 /**
  * Obtains the X Coordinate from the center of the screen to be drawed
@@ -61,14 +135,14 @@ ComplexNumber *createComplexByAddress(int row, int column) {
 }
 
 int createFractal(Resolution *pRes) {
-    FILE *output;
-    if ((output = fopen(DEFAULT_OUTPUT, "w")) == NULL) {
+    FILE *outputFile;
+    if ((outputFile = fopen(output->characters, "w")) == NULL) {
         fprintf(stderr, "No se pudo crear archivo");
         return -1;
     }
-    fprintf(output, "%s\n", PGM_FIRST_LINE);
-    fprintf(output, "%d %d\n", pRes->width, pRes->height);
-    fprintf(output, "%d\n", MAX_INTENSITY);
+    fprintf(outputFile, "%s\n", PGM_FIRST_LINE);
+    fprintf(outputFile, "%d %d\n", pRes->width, pRes->height);
+    fprintf(outputFile, "%d\n", MAX_INTENSITY);
 
     // Iterate per row
     for (int row = 0; row < pRes->height; row++) {
@@ -84,36 +158,134 @@ int createFractal(Resolution *pRes) {
                 powComplex(complex, 2);
                 sumComplex(complex, seed);
             }
-            fprintf(output, "%d\n", intensity);
+            fprintf(outputFile, "%d\n", intensity);
             freeComplex(complex);
         }
     }
-    fclose(output);
+    fclose(outputFile);
+    return 0;
+}
+
+/**
+ * Iterate over the arguments and changed the corresponding parameters
+ * @param argc Quantity of arguments
+ * @param argv Array of arguments including the program invocation
+ */
+int detectArguments(int argc, char *argv[]) {
+    /*storeValidArguments();*/
+    int i = 1;
+    int parsedSuccesfully;
+    CustomString *errorMessage = initializeString(STRING_MAX);
+    do {
+        parsedSuccesfully = 0;
+        CustomString *argument = initializeString(STRING_MAX);
+
+        parseString(argv[i], argument);
+        if ((strcmp(argument->characters, "-r") == 0) || (strcmp(argument->characters, "--resolution") == 0)) {
+            if (i == argc) {
+                errorMessage->characters = "Missing value for argument --resolution";
+            } else {
+                parseString(argv[++i], argument);
+                parseResolution(argument, resolution, &parsedSuccesfully, errorMessage);
+            }
+        }
+        if ((strcmp(argument->characters, "-c") == 0) || (strcmp(argument->characters, "--center") == 0)) {
+            if (i == argc) {
+                errorMessage->characters = "Missing value for argument --center";
+            } else {
+                parseString(argv[++i], argument);
+                /*parseCenter(argument, &parsedSuccesfully, errorMessage);*/
+            }
+        }
+        if ((strcmp(argument->characters, "-w") == 0) || (strcmp(argument->characters, "--width") == 0)) {
+            if (i == argc) {
+                errorMessage->characters = "Missing value for argument --width";
+            } else {
+                parseString(argv[++i], argument);
+                parseDouble(argument, &width, &parsedSuccesfully, errorMessage);
+            }
+        }
+        if ((strcmp(argument->characters, "-H") == 0) || (strcmp(argument->characters, "--height") == 0)) {
+            if (i == argc) {
+                errorMessage->characters = "Missing value for argument --height";
+            } else {
+                parseString(argv[++i], argument);
+                parseDouble(argument, &height, &parsedSuccesfully, errorMessage);
+            }
+        }
+        if ((strcmp(argument->characters, "-s") == 0) || (strcmp(argument->characters, "--seed") == 0)) {
+            if (i == argc) {
+                errorMessage->characters = "Missing value for argument --height";
+            } else {
+                parseString(argv[++i], argument);
+                /*parseSeed(argument, &parsedSuccesfully, errorMessage);*/
+            }
+        }
+        if ((strcmp(argument->characters, "-o") == 0) || (strcmp(argument->characters, "--output") == 0)) {
+            if (i == argc) {
+                errorMessage->characters = "Missing value for argument --output";
+            } else {
+                parseString(argv[++i], argument);
+                parseOutput(argument, output, &parsedSuccesfully, errorMessage);
+            }
+        }
+        i++;
+        free(argument);
+    } while ((i < argc) && (parsedSuccesfully == TRUE));
+    if (parsedSuccesfully == FALSE) {
+        fprintf(stderr, "%s", errorMessage->characters);
+    }
+    free(errorMessage);
+    /*freeArguments(argList);
+    free(argList);*/
     return 0;
 }
 
 int main(int argc, char *argv[]) {
-    float width = DEFAULT_WIDTH;
-    float height = DEFAULT_HEIGHT;
-    int resolution_x = DEFAULT_RESOLUTION_WIDTH;
-    int resolution_y = DEFAULT_RESOLUTION_HEIGHT;
-    long double seed_x = DEFAULT_SEED_X;
-    long double seed_y = DEFAULT_SEED_Y;
-    long double center_x = DEFAULT_CENTER_X;
-    long double center_y = DEFAULT_CENTER_Y;
+    output = initializeString(STRING_MAX);
+    parseString(DEFAULT_OUTPUT, output);
+    resolution = createResolution(DEFAULT_RESOLUTION_WIDTH, DEFAULT_RESOLUTION_HEIGHT);
+    width = DEFAULT_WIDTH;
+    height = DEFAULT_HEIGHT;
 
-    Resolution *pRes = createResolution(resolution_x, resolution_y);
+    if (argc > 1) {
+        detectArguments(argc, argv);
+    }
+
     seed = createComplexNumber(seed_x, seed_y);
-    rowAndColumnCenter = createIntVector((pRes->width) / 2, (pRes->height) / 2);
+    rowAndColumnCenter = createIntVector((resolution->width) / 2, (resolution->height) / 2);
 
-    widthPerPixel = (width / (pRes->width));
-    heightPerPixel = (height / (pRes->height));
+    widthPerPixel = (width / (resolution->width));
+    heightPerPixel = (height / (resolution->height));
 
     fractalCenter = createComplexNumber(center_x, center_y);
-    createFractal(pRes);
+    createFractal(resolution);
     // Free Memory
-    freeResolution(pRes);
+    freeResolution(resolution);
     freeComplex(seed);
     freeIntVector(rowAndColumnCenter);
     freeComplex(fractalCenter);
+}
+
+int argumentValid(char *arg) {
+    simpleListMoveCurrent(argList, first);
+    Argument *pArg = NULL;
+    do {
+        simpleListCurrent(*argList, pArg);
+
+    } while (simpleListMoveCurrent(argList, next));
+    return 1;
+}
+
+/**
+ * Store the valid arguments that the program can receive into a SimpleList of Arguments
+ */
+void storeValidArguments() {
+    simpleListCreate(argList, sizeof(Argument));
+    simpleListInsertCurrent(argList, first, createArgument('r', "resolution"));
+    simpleListInsertCurrent(argList, next, createArgument('c', "center"));
+    simpleListInsertCurrent(argList, next, createArgument('w', "width"));
+    simpleListInsertCurrent(argList, next, createArgument('H', "height"));
+    simpleListInsertCurrent(argList, next, createArgument('s', "seed"));
+    simpleListInsertCurrent(argList, next, createArgument('o', "output"));
 }
