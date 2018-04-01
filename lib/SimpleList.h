@@ -16,9 +16,9 @@
  * Movements that the structure will handle.
  */
 typedef enum {
-    first,
-    next,
-    previous
+    MOVEMENT_FIRST,
+    MOVEMENT_NEXT,
+    MOVEMENT_PREVIOUS
 } SimpleListMovement;
 
 /**
@@ -39,7 +39,7 @@ typedef struct {
 
 /**
  * @pre     List pointed by pL wasn't created.
- * @post    pL creted and empty.
+ * @post    pL created and empty.
  */
 void simpleListCreate(SimpleList *pL, int size);
 
@@ -92,10 +92,6 @@ void simpleListDeleteCurrent(SimpleList *pL);
  */
 int simpleListInsertCurrent(SimpleList *pL, SimpleListMovement m, void *e);
 
-/* L_ELEM_CTE
- * Pre: Ls creada y no vacía.
- * Post: Se modifica el elemento corriente para que pase a tener los datos indicados en pE.
- */
 /**
  * @pre     l already created and not empty.
  * @post    Current element is overriden with pE

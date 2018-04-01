@@ -26,16 +26,16 @@ void simpleListCurrent(SimpleList l, void *pE) {
 
 int simpleListMoveCurrent(SimpleList *pL, SimpleListMovement m) {
     switch (m) {
-        case first:
+        case MOVEMENT_FIRST:
             pL->current = pL->first;
             break;
-        case next:
+        case MOVEMENT_NEXT:
             if (pL->current->next == NULL)
                 return FALSE;
             else
                 pL->current = pL->current->next;
             break;
-        case previous:
+        case MOVEMENT_PREVIOUS:
             return FALSE;
     }
     return TRUE;
@@ -48,8 +48,7 @@ void simpleListDeleteCurrent(SimpleList *pL) {
         pL->current = pL->first;
     } else {
         if (pL->current->next) {
-            /* En este caso en que el corriente no es el ultimo, puedo evitarme
-             * recorrer toda la lista buscando el anterior */
+            /* When the current is not the last one, can avoid iterating the entire list seeking the previous element */
             pNode = pL->current->next;
             memcpy(pL->current->elem, pNode->elem, pL->size);
             pL->current->next = pNode->next;
@@ -58,7 +57,7 @@ void simpleListDeleteCurrent(SimpleList *pL) {
             while (pAux->next != pL->current)
                 pAux = pAux->next;
             pAux->next = pL->current->next;
-            pL->current = pAux; /*Si es el �ltimo queda en el Anterior al borrado */
+            pL->current = pAux;
         }
     }
     free(pNode->elem);
@@ -75,13 +74,13 @@ int simpleListInsertCurrent(SimpleList *pL, SimpleListMovement m, void *pE) {
         return FALSE;
     }
     memcpy(pNode->elem, pE, pL->size);
-    if ((pL->first == NULL) || (m == first) || ((m == previous) && (pL->first == pL->current))) {
+    if ((pL->first == NULL) || (m == MOVEMENT_FIRST) || ((m == MOVEMENT_PREVIOUS) && (pL->first == pL->current))) {
         pNode->next = pL->first;
         pL->first = pL->current = pNode;
     } else {
         pNode->next = pL->current->next;
         pL->current->next = pNode;
-        if (m == previous) {
+        if (m == MOVEMENT_PREVIOUS) {
             void *tmp = pNode->elem;
             pNode->elem = pL->current->elem;
             pL->current->elem = tmp;

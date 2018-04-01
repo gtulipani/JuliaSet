@@ -1,12 +1,13 @@
+#ifndef TP0_TYPECONVERTER_H
+#define TP0_TYPECONVERTER_H
+
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifndef TP0_TYPECONVERTER_H
-#define TP0_TYPECONVERTER_H
+#include "ComplexNumber.h"
 
 typedef enum {
     STR2INT_SUCCESS,
@@ -21,6 +22,13 @@ typedef enum {
     STR2DOUBLE_UNDERFLOW,
     STR2DOUBLE_INCONVERTIBLE
 } str2double_errno;
+
+typedef enum {
+    STR2COMPLEX_SUCCESS,
+    STR2COMPLEX_OVERFLOW,
+    STR2COMPLEX_UNDERFLOW,
+    STR2COMPLEX_INCONVERTIBLE
+} str2complex_errno;
 
 /**
  * Convert string s to int out.
@@ -46,5 +54,17 @@ str2int_errno str2int(int *out, char *s, int base);
  * @return  Indicates if the operation succeeded, or why it failed.
  */
 str2double_errno str2double(double *out, char *s);
+
+/**
+ * Convert string s to complex number.
+ * @param   out The converted complex. Cannot be NULL.
+ * @param   s Input string to be converted.
+ *          The format is similar to strtold, except that the following are inconvertible:
+ *              - empty string
+ *              - any trailing characters that are not part of the number
+ *          Cannot be NULL.
+ * @return  Indicates if the operation succeeded, or why it failed.
+ */
+str2complex_errno str2complex(ComplexNumber *out, char *s);
 
 #endif

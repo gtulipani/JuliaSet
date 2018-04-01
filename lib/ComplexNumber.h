@@ -1,6 +1,16 @@
 #ifndef TP0_COMPLEXNUMBER_H
 #define TP0_COMPLEXNUMBER_H
 
+#include "CustomString.h"
+
+#if !defined(FALSE)
+    #define FALSE 0
+#endif
+
+#if !defined(TRUE)
+    #define TRUE 1
+#endif
+
 typedef struct ComplexNumber {
     long double real;
     long double imaginary;
@@ -29,6 +39,15 @@ void powComplex(ComplexNumber *pBase, int exponent);
  * @param pComp2
  */
 void sumComplex(ComplexNumber *pComp1, ComplexNumber *pComp2);
+
+/**
+ * Parses the complex number value from pStr and updates success and errorMessage values
+ * @param pStr
+ * @param pComplex
+ * @param success
+ * @param errorMessage
+ */
+void parseComplex(CustomString *pStr, void *pComplex, int *success, CustomString *errorMessage);
 
 /**
  * Frees the memory used by the Complex Number

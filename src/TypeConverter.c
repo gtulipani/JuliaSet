@@ -1,4 +1,5 @@
 #include <math.h>
+#include <memory.h>
 #include "../lib/TypeConverter.h"
 
 str2int_errno str2int(int *out, char *s, int base) {
@@ -24,7 +25,6 @@ str2double_errno str2double(double *out, char *s) {
         return STR2DOUBLE_INCONVERTIBLE;
     errno = 0;
     double d = strtod(s, &end);
-    /* Both checks are needed because INT_MAX == LONG_MAX is possible. */
     if (errno == ERANGE && d == HUGE_VAL)
         return STR2DOUBLE_OVERFLOW;
     if (errno == ERANGE && d == 0)
@@ -35,3 +35,30 @@ str2double_errno str2double(double *out, char *s) {
     return STR2DOUBLE_SUCCESS;
 }
 
+str2complex_errno str2complex(ComplexNumber *out, char *s) {
+    char *end;
+    if (s[0] == '\0')
+        return STR2COMPLEX_INCONVERTIBLE;
+    errno = 0;
+    long double ld = strtold(s, &end);
+    if (errno == ERANGE && ld == HUGE_VALL)
+        return STR2COMPLEX_OVERFLOW;
+    if (errno == ERANGE && ld == 0.0L)
+        return STR2COMPLEX_UNDERFLOW;
+    /* If end is the i character, it's the imaginary part, if not it must be empty and represents the real part */
+    if (*end != '\0') {
+        if (strcmp(end, "i") == 0) {
+            /* Imaginary number */
+            if (ld == 0.0L) {
+                /* Argument was plain i -> must be converted to 1L */
+                ld = 1L;
+            }
+            out->imaginary = ld;
+        } else {
+            return STR2COMPLEX_INCONVERTIBLE;
+        }
+    } else {
+        out->real = ld;
+    }
+    return STR2COMPLEX_SUCCESS;
+}
