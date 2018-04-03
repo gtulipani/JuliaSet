@@ -5,7 +5,7 @@ CLI Application to generate a PGM file representing a [Julia Set](https://en.wik
 ## Building and Running
 ### Build
 1. Navigate to the base folder
-1. Execute `gcc -Wall -o juliaSet src/*.c lib/*.c -lm`
+1. Execute `gcc -Wall -o juliaSet src/*.c lib/*.h -lm`
 
 ### Run
 The application must be executed with the following syntax `./juliaSet [-argument] [-value]`
