@@ -5,7 +5,7 @@
 
 char complexDelimiter[] = "+-";
 
-ComplexNumber *createComplexNumber(long double real, long double imaginary) {
+ComplexNumber *createComplexNumber(double real, double imaginary) {
     ComplexNumber *complex;
     if ((complex = (ComplexNumber *) malloc(sizeof(ComplexNumber))) == NULL) {
         return NULL;
@@ -17,14 +17,14 @@ ComplexNumber *createComplexNumber(long double real, long double imaginary) {
     return complex;
 }
 
-long double absComplex(ComplexNumber *pComp) {
-    return sqrtl(powl(pComp->real, 2) + powl(pComp->imaginary, 2));
+double absComplex(ComplexNumber *pComp) {
+    return sqrt(pow(pComp->real, 2) + pow(pComp->imaginary, 2));
 }
 
 void powComplex(ComplexNumber *pBase, int exponent) {
     if (exponent == 2) {
-        long double auxReal = powl(pBase->real, exponent) - powl(pBase->imaginary, exponent);
-        long double auxImaginary = 2 * pBase->real * pBase->imaginary;
+        double auxReal = pow(pBase->real, exponent) - pow(pBase->imaginary, exponent);
+        double auxImaginary = 2 * pBase->real * pBase->imaginary;
         pBase->real = auxReal;
         pBase->imaginary = auxImaginary;
     }

@@ -40,25 +40,25 @@ str2complex_errno str2complex(ComplexNumber *out, char *s) {
     if (s[0] == '\0')
         return STR2COMPLEX_INCONVERTIBLE;
     errno = 0;
-    long double ld = strtold(s, &end);
-    if (errno == ERANGE && ld == HUGE_VALL)
+    double d = strtod(s, &end);
+    if (errno == ERANGE && d == HUGE_VALL)
         return STR2COMPLEX_OVERFLOW;
-    if (errno == ERANGE && ld == 0.0L)
+    if (errno == ERANGE && d == 0.0)
         return STR2COMPLEX_UNDERFLOW;
     /* If end is the i character, it's the imaginary part, if not it must be empty and represents the real part */
     if (*end != '\0') {
         if (strcmp(end, "i") == 0) {
             /* Imaginary number */
-            if (ld == 0.0L) {
-                /* Argument was plain i -> must be converted to 1L */
-                ld = 1L;
+            if (d == 0.0) {
+                /* Argument was plain i -> must be converted to 1 */
+                d = 1;
             }
-            out->imaginary = ld;
+            out->imaginary = d;
         } else {
             return STR2COMPLEX_INCONVERTIBLE;
         }
     } else {
-        out->real = ld;
+        out->real = d;
     }
     return STR2COMPLEX_SUCCESS;
 }

@@ -59,7 +59,7 @@ str2double_errno str2double(double *out, char *s);
  * Convert string s to complex number.
  * @param   out The converted complex. Cannot be NULL.
  * @param   s Input string to be converted.
- *          The format is similar to strtold, except that the following are inconvertible:
+ *          The format is similar to strtod, except that the following are inconvertible:
  *              - empty string
  *              - any trailing characters that are not part of the number
  *          Cannot be NULL.

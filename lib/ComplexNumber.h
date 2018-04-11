@@ -12,8 +12,8 @@
 #endif
 
 typedef struct ComplexNumber {
-    long double real;
-    long double imaginary;
+    double real;
+    double imaginary;
 } ComplexNumber;
 
 /**
@@ -22,9 +22,9 @@ typedef struct ComplexNumber {
  * @param imaginary
  * @return
  */
-ComplexNumber *createComplexNumber(long double real, long double imaginary);
+ComplexNumber *createComplexNumber(double real, double imaginary);
 
-long double absComplex(ComplexNumber *pComp);
+double absComplex(ComplexNumber *pComp);
 
 /**
  * Perform the pow operation to a complex number and stores the result in the same number
