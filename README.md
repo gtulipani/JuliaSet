@@ -6,6 +6,9 @@ CLI Application to generate a PGM file representing a [Julia Set](https://en.wik
 ### Build
 1. Navigate to the base folder
 1. Execute `make`
+### Create assembly files
+1. Navigate to the base folder
+1. Execute `make assembly`. This will generate the **.s** files
 
 ### Run
 The application must be executed with the following syntax `./juliaSet [-argument] [-value]`
@@ -41,6 +44,10 @@ The program handles a bunch of exceptions that may happen during the parse of th
 Because of the implementation of the arguments parsing, in order to include a new argument to the logic, the following steps must be followed:
  - Create a `parser` function as defined inside cArgument.h` library, with all the neccesary logic to parse the argument, update the result and the success flag, or specify an error message if anything went wrong.
  - Add a new line inside the `storeValidArguments()` function, in order to add a new element to the `SimpleList` instance inside `main.c` file, with the desired values for short description, long description and result element.
+
+### Clean
+1. Navigate to the base folder
+1. Execute `make clean`. This will remove both executables, **.o** and **.s** files.
 
 ## Additional Resources
 - [Fractals](https://en.wikipedia.org/wiki/Fractal)

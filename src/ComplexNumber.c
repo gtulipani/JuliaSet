@@ -94,3 +94,4 @@ void parseComplex(CustomString *pStr, void *pComplex, int *success, CustomString
 void freeComplex(ComplexNumber *pComp) {
     free(pComp);
 }
+

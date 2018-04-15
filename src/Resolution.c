@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <memory.h>
-#include <printf.h>
 #include "../lib/Resolution.h"
 
 char resolutionDelimiter[] = "x,";
@@ -90,3 +89,4 @@ void parseResolution(CustomString *pStr, void *res, int *success, CustomString *
 void freeResolution(Resolution *pRes) {
     free(pRes);
 }
+
